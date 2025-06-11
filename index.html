@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Circle Repel Demo</title>
+  <title>Relaxing Circles</title>
   <style>
     body {
       margin: 0;
@@ -51,12 +51,21 @@
 
   let mouse = { x: null, y: null };
 
-  canvas.addEventListener('mousemove', (e) => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-  });
+  function updateMousePosition(e) {
+    mouse.x = e.clientX || e.touches[0].clientX;
+    mouse.y = e.clientY || e.touches[0].clientY;
+  }
+
+  canvas.addEventListener('mousemove', updateMousePosition);
+
+  canvas.addEventListener('touchmove', updateMousePosition);
 
   canvas.addEventListener('mouseleave', () => {
+    mouse.x = null;
+    mouse.y = null;
+  });
+
+  canvas.addEventListener('touchend', () => {
     mouse.x = null;
     mouse.y = null;
   });
