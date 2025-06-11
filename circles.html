@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Circle Repel Demo</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #f5f5f5;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  let circles = [];
+  const spacing = 20;
+  const radius = 5;
+  const repelRadius = 80;
+
+  function resizeCanvas() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    createCircles();
+  }
+
+  function createCircles() {
+    circles = [];
+    for (let y = spacing; y < height; y += spacing) {
+      for (let x = spacing; x < width; x += spacing) {
+        circles.push({
+          x: x,
+          y: y,
+          originalX: x,
+          originalY: y,
+          vx: 0,
+          vy: 0,
+        });
+      }
+    }
+  }
+
+  let mouse = { x: null, y: null };
+
+  canvas.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    mouse.x = null;
+    mouse.y = null;
+  });
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    for (let circle of circles) {
+      if (mouse.x !== null && mouse.y !== null) {
+        let dx = circle.x - mouse.x;
+        let dy = circle.y - mouse.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < repelRadius) {
+          let angle = Math.atan2(dy, dx);
+          let force = (repelRadius - dist) / repelRadius;
+          circle.vx += Math.cos(angle) * force * 3;
+          circle.vy += Math.sin(angle) * force * 3;
+        }
+      }
+
+      let ox = circle.originalX - circle.x;
+      let oy = circle.originalY - circle.y;
+      circle.vx += ox * 0.01;
+      circle.vy += oy * 0.01;
+
+      circle.vx *= 0.9;
+      circle.vy *= 0.9;
+      circle.x += circle.vx;
+      circle.y += circle.vy;
+
+      ctx.beginPath();
+      ctx.arc(circle.x, circle.y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#333';
+      ctx.fill();
+    }
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  animate();
+</script>
+</body>
+</html>
